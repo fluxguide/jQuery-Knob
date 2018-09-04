@@ -1,6 +1,14 @@
 jQuery Knob
 =============
 
+---
+
+### Mofifications by fluxguide
+
+A actual "knob" will also be displayed.
+
+---
+
 - canvas based ; no png or jpg sprites.
 - touch, mouse and mousewheel, keyboard events implemented.
 - downward compatible ; overloads an input element.
@@ -61,6 +69,8 @@ UI :
 * font : font family.
 * fontWeight : font weight.
 * bgColor : background color.
+* knobColor: the color of the knob (fill and stroke)
+* knobRadius: the radius of the knob (caution, this value is somewhat relative to thickness-option)
 
 Hooks
 -------

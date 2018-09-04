@@ -79,6 +79,8 @@
         this.relativeWidth = false;
         this.relativeHeight = false;
         this.$div = null; // component div
+        this.knobRadius = null;
+        this.knobColor = null;
 
         this.run = function () {
             var cf = function (e, conf) {
@@ -93,7 +95,7 @@
 
             if (this.$.data('kontroled')) return;
             this.$.data('kontroled', true);
-
+  
             this.extend();
             this.o = $.extend({
                     // Config
@@ -120,6 +122,8 @@
                     inline: false,
                     step: this.$.data('step') || 1,
                     rotation: this.$.data('rotation'),
+                    knobRadius: this.$.data('knobradius') || 10,
+                    knobColor: this.$.data('knobcolor') || '#bada55',
 
                     // Hooks
                     draw: null, // function () {}
@@ -183,8 +187,8 @@
 
             // adds needed DOM elements (canvas, div)
             this.$c = $(document.createElement('canvas')).attr({
-                width: this.o.width,
-                height: this.o.height
+                width: this.o.width+20,
+                height: this.o.height+20
             });
 
             // wraps all elements in a div
@@ -276,12 +280,13 @@
                 this.h = this.o.height;
             }
 
+          
             // finalize div
             this.$div.css({
                 'width': this.w + 'px',
                 'height': this.h + 'px'
             });
-
+    
             // finalize canvas with computed width
             this.$c.attr({
                 width: this.w,
@@ -734,7 +739,7 @@
             return (v - this.o.min) * this.angleArc / (this.o.max - this.o.min);
         };
 
-        this.arc = function (v) {
+        this.arc = function (v, drawCursor) {
           var sa, ea;
           v = this.angle(v);
           if (this.o.flip) {
@@ -744,7 +749,7 @@
               sa = this.startAngle - 0.00001;
               ea = sa + v + 0.00001;
           }
-          this.o.cursor
+          this.o.cursor && drawCursor
               && (sa = ea - this.cursorExt)
               && (ea = ea + this.cursorExt);
 
@@ -757,7 +762,8 @@
 
         this.draw = function () {
             var c = this.g,                 // context
-                a = this.arc(this.cv),      // Arc
+                a_knob = this.arc(this.cv, true),      // Arc with knob
+                a = this.arc(this.cv),      // Arc without knob
                 pa,                         // Previous arc
                 r = 1;
 
@@ -767,7 +773,7 @@
             if (this.o.bgColor !== "none") {
                 c.beginPath();
                     c.strokeStyle = this.o.bgColor;
-                    c.arc(this.xy, this.xy, this.radius, this.endAngle - 0.00001, this.startAngle + 0.00001, true);
+                    c.arc(this.xy, this.xy, this.radius*0.9, this.endAngle - 0.00001, this.startAngle + 0.00001, true);
                 c.stroke();
             }
 
@@ -779,11 +785,25 @@
                 c.stroke();
                 r = this.cv == this.v;
             }
-
+  
+            // arc
             c.beginPath();
             c.strokeStyle = r ? this.o.fgColor : this.fgColor ;
-            c.arc(this.xy, this.xy, this.radius, a.s, a.e, a.d);
+            c.arc(this.xy, this.xy, this.radius*0.9, a.s, a.e, a.d);
             c.stroke();
+          
+            // knob
+            c.beginPath();
+            c.strokeStyle = this.o.knobColor;
+            c.fillStyle = this.o.knobColor;
+            
+            var knob_x = (Math.cos(a.e - Math.PI))*-1 * this.radius*0.9 + this.radius + this.lineWidth/2;
+            var knob_y = (Math.sin(a.e - Math.PI))*-1 * this.radius*0.9 + this.radius + this.lineWidth/2;
+            $('#log').text(this.o.knobRadius)
+            c.arc(knob_x, knob_y, this.o.knobRadius, 0, Math.PI*2, a_knob.d);
+            c.lineCap = 'round';
+            c.stroke();
+            c.fill();
         };
 
         this.cancel = function () {

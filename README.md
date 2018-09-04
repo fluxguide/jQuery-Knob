@@ -6,6 +6,7 @@ jQuery Knob
 ### Mofifications by fluxguide
 
 A actual "knob" will also be displayed.
+Example usage: [Pen on CodePen](https://codepen.io/mgrubinger/pen/yxbmyR)
 
 ---
 
